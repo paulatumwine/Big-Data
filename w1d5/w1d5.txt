@@ -1,0 +1,75 @@
+---
+Relative frequencies (Pair Approach with In-Mapper combining)
+---
+class Mapper
+	method initialize()
+		H = new AssociativeArray()
+
+	method Map(docid a, doc d)
+		for all term u in record r do
+			for all term v in Window(u) do
+				Pair P = (u, v) // P is a Pair of (u, v)
+				if H{P} is null
+					H{P} = 1
+				else
+					H{P} = H{P} + 1
+
+				Pair R = (u, *) // R is a Pair of (u, *)
+				if H{R} is null
+					H{R} = 1
+				else
+					H{R} = H{R} + 1
+
+	method close()
+		for all key k in record H do
+			Emit(k, H{k}) // k refers to any key in H; so it could be either a Pair of (u, v) or a Pair of (u, *) 
+
+
+class Reducer
+	method initialize() 
+		sum = 0
+	
+	method Reduce(Pair (u, v), Integer [c1, c2, …, cn])
+		s = 0
+		for all count c in counts [c1, c2, …, cn] do 
+			s = s + c 
+
+		if (v == "*") 
+			sum = s
+		else 
+			Emit((u, v), s / sum)
+
+
+---
+Relative frequencies (Stripe Approach with In-Mapper combining)
+---
+class Mapper
+	method initialize()
+		HFINAL = new AssociativeArray()
+
+	method Map(docid a; doc d)
+		for all term u in record r do
+			H = new AssociativeArray
+			for all term v in Window(u) do
+				H{v} = H{v} + 1
+
+		if HFINAL{u} is null // key u does not already exist in HFINAL
+			HFINAL{u} = H
+		else
+			HFINAL{u} = HFINAL{u} + H //append array H to array value at HFINAL{u}
+			
+	method close()
+		for all term u in HFINAL do
+			Emit(u, HFINAL{u})
+
+
+class Reducer 
+	method Reduce(u, [H1, H2, H3, …, HN])
+		HFINAL = new AssociativeArray 
+
+		for all stripe H in [H1, H2, H3, ... HN] do
+			HFINAL = HFINAL + H //Element-wise addition
+
+		s = Sum(HFINAL) // Sum of all elements in HFINAL
+		Emit(u, HFINAL/s) // Divide each element by s
+
