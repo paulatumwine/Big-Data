@@ -1,0 +1,45 @@
+class Mapper
+	method map(docid a, doc d)
+		u = r.getId() # r is the record in the input split
+		t = r.getSomeOtherProperty()
+		Emit(u, t)
+		
+class Reducer
+	method reduce(u,[t0, t1 ... tn)
+		sum = 0
+		count = 0
+		for each t in [t0, t1 ... tn]
+			sum += t0
+			count++
+		Emit(u, sum/count)
+
+
+class Mapper
+	method initialize()
+		H = new AssociativeArray()
+		
+	method map(docid a, doc d)
+		u = r.getId() # r is the record in the input split
+		t = r.getSomeOtherProperty()
+		p = new Pair(t, 1) #values of t
+		
+		H{u} is null
+			H{u} = p
+		else
+			H{u} = H{u} + p //elementwise addition -- add t from Pair to current t value in H{u}, and also add the value in pair to correspoding value in H{u}
+		
+	method close()
+		for all term u in H do
+			Emit(u, H{u}) # the value held in element H{u} is a Pair
+			
+class Reducer
+	method reduce(u, [(t0, c0), (t1, c1)...(tn, cn])
+		sum = 0
+		count = 0
+		for all Pair(t, c) in [(t0, c0), (t1, c1)...(tn, cn] do
+			sum = sum + t
+			count = count + c 
+		avg = sum/count
+		Emit(u, avg)
+		
+# The signature of the Emit in mapper ought to somewhat match the reduce method declaration in the Reducer
