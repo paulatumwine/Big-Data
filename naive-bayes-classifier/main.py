@@ -58,6 +58,7 @@ def summarizeByClass(dataset):
 
 
 def calculateProbability(x, mean, stdev):
+    stdev = 100 if stdev == 0 else stdev
     exponent = math.exp(-(math.pow(x - mean, 2) / (2 * math.pow(stdev, 2))))
     return (1 / (math.sqrt(2 * math.pi) * stdev)) * exponent
 
@@ -100,7 +101,7 @@ def getAccuracy(testSet, predictions):
 
 
 def main():
-    filename = 'pima-indians-diabetes.data.csv'
+    filename = 'absenteeism_clean_data.csv'
     splitRatio = 0.67
     dataset = loadCsv(filename)
     print('Loaded data file {0} with {1} rows'.format(filename, len(dataset)))
