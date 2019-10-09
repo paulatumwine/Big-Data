@@ -1,8 +1,10 @@
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class App {
 
@@ -11,22 +13,18 @@ public class App {
     public static void main(String[] args) {
         /*System.out.println(new File("").getAbsolutePath());*/
         String fileName = args.length > 0 && args[0] != null ? args[0] : "testDataForW1D1.txt";
-        try (Scanner scanner = new Scanner(new File(fileName)).useDelimiter("\\s")) {
-            while (scanner.hasNext()) {
-                String current = scanner.next();
-                if (current.matches("[a-zA-Z\\-]+")) {
-                    if (current.contains("-")) {
-                        for (String part : current.split("-"))
-                            words.add(new Pair(part));
-                        continue;
-                    }
-                    words.add(new Pair(current));
-                }
-            }
-            Collections.sort(words, new PairSort());
+
+        try (Stream<String> lines = Files.lines(Paths.get(fileName))) {
+            words = lines
+                    .flatMap(l -> Arrays.stream(l.split("(\\s|-)")))
+                    .map(w -> w.replaceAll("(\\.|\")", ""))
+                    .filter(w -> w.matches("[a-zA-Z]+"))
+                    .map(w -> new Pair(w))
+                    .sorted(new PairSort())
+                    .collect(Collectors.toList());
             App.printPairs(words);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
