@@ -1,0 +1,59 @@
+QUESTION 1 
+In-Mapper combiner algorithm modifying Co-occurrence Matrix (pairs approach) algorithm
+
+class Mapper
+	method initialize()
+		H = new AssociativeArray()
+		
+	method Map(docid a, doc d)
+		for all term u in record r do
+			for all term v in Window(u) do
+				Pair P = (u, v) // P is a Pair of (u, v)
+				if H{P} is null
+					H{P} = 1
+				else
+					H{P} = H{P} + 1
+				
+	method close()
+		for all term P in H do
+			Emit(P, H{P}) 
+
+
+class Reducer
+	method Reduce(Pair(u, v), Integer [c1, c2, ..., cn])
+		s = 0
+		for all Integer c in [c1, c2, ..., cn] do
+			s = s + c 
+			Emit((u, v), s)
+			
+			
+QUESTION 2
+In-Mapper combiner algorithm modifying Co-occurrence Matrix (stripe approach) algorithm
+
+class Mapper
+	method initialize()
+		T = new AssociativeArray()
+
+method Map(docid a, doc d)
+	for all term u in record r do
+		H = new AssociativeArray
+		for all term v in Window(u) do
+			H{v} = H{v} + 1
+
+		if T{u} is null
+			T{u} = H
+		else
+			T{u} = T{u} + H //append array H to array value at T{u}, using elementwise addition if key already exists in T{u}
+	
+	method close()
+		for all term u in T do
+			Emit(u, T{u})
+
+class Reducer
+	method Reduce(term u, AssociativeArray [H1, H2, …, HN])
+		T = new AssociativeArray
+		for all stripe H in [H1, H2, …, HN] do
+			T = T + H //elementwise addition
+		Emit(u, T )
+
+
