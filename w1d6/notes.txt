@@ -1,0 +1,25 @@
+// to aid your thinking while you figure out what you want in your mapper, ask yourself
+// what do I need from the record, and what do I need to send across the network?
+
+// emit product, profit pairs
+// compute avg profit per product in reducer 
+
+class Mapper
+	method Map(docid a, doc d)
+		for all term r in record r do // you leave this out; because the framework will do it for ya
+			i = r.getcatid()
+			p = r.getprice()
+			c = r.getcost()
+			n = r.getNumItems()
+			Emit(cat_id/product_id, ((p - c) * n, n)) // (cat_id/product_id, (profit, numItems)) pairs
+
+			Emit(*, ((p-c)*n, n)) // in order to be able to calculate the profit across all categories -- use * idea to group everything
+
+class Reducer
+	method Reduce(Pair(cat_id/product_id, (profit, numItems)) [P1, P2, … PN])
+		s = 0 // sum of profits
+		c = 0 // count of pairs
+		for all p in [P1, P2, … PN] do 
+			s = s + p.getValue().getProfit()
+			c = c + p.getValue().getNumItems()
+			Emit(p.getKey(), s / c)
