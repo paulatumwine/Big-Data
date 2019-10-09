@@ -1,0 +1,87 @@
+Q1. Build inverted index.
+
+Input Split 1 (Doc ID 101) [ cat pat mat sat cat eat ]
+Input Split 2 (Doc ID 201)  [ pat mat sat pat mat eat]
+Input Split 3 (Doc ID 301) [ sat mat cat pat fat mat]
+
+Assume three Mappers and two Reducers.
+
+Let cat mat and sat be processed by Reducer 1 and rest by Reducer 2.
+
+Mapper 1 input
+(Doc ID 101) [ cat pat mat sat cat eat ]
+
+Mapper 2 input
+(Doc ID 201) [ pat mat sat pat mat eat]
+
+Mapper 3 input
+(Doc ID 301) [ sat mat cat pat fat mat] 
+
+Mapper 1 output
+((cat, 101), 2)
+((pat, 101), 1)
+((mat, 101), 1)
+((sat, 101), 1)
+((eat, 101), 1)
+
+Mapper 2 output
+((pat, 201), 2)
+((mat, 201), 2)
+((sat, 201), 1)
+((mat, 201), 1)
+((eat, 201), 1)
+
+Mapper 3 output
+((sat, 301), 1)
+((mat, 301), 2)
+((cat, 301), 1)
+((pat, 301), 1)
+((fat, 301), 1)
+
+Reducer 1 input
+((cat, 101), [2])
+((mat, 101), [1])
+((sat, 101), [1])
+((mat, 201), [3])
+((sat, 201), [1])
+((cat, 301), [1])
+((mat, 301), [2])
+((sat, 301), [1])
+
+Reducer 2 input
+((eat, 101), 1)
+((pat, 101), 1)
+((eat, 201), 1)
+((pat, 201), 2)
+((fat, 301), 1)
+((pat, 301), 1)
+
+Reducer 1 output
+(cat, [(101, 2)])
+(mat, [(101, 1)])
+(sat, [(101, 1)])
+(mat, [(201, 3)])
+(sat, [(201, 1)])
+(cat, [(301, 1)])
+(mat, [(301, 2)])
+(sat, [(301, 1)])
+
+Reducer 2 output
+(eat, [(101, 1)])
+(pat, [(101, 1)])
+(eat, [(201, 1)])
+(pat, [(201, 2)])
+(fat, [(201, 1)])
+(pat, [(201, 1)])
+
+
+Q3 Apply all the data compression algorithms (covered in class by the professor through examples)  on the following list of postings. 
+
+[(512, 15), (2080, 93), (5748, 195)]
+
+
+With d-gaps applied becomes:
+512 15 1568 93 3668 195
+
+And then when Byte-Aligned becomes (byte by byte):
+00000100 10000000 10001111 00001100 10100000 11011101 00011100 11010100 00000001 11000011

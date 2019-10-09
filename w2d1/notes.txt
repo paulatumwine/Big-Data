@@ -1,0 +1,9 @@
+
+max = max(l1.docId, l2.docId, ..., ln.docId)
+L = new List
+for i = 1 to n
+	if (li.docId < max) li <- li.next()
+	if (all li.docId == max)
+		L.add(li.docId/max)
+		for i = 1 to n
+			li <- li.next()
