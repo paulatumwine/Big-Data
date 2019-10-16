@@ -11,23 +11,24 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Map extends Mapper<LongWritable, Text, StringPairWritable, DoubleWritable> {
+public class Map extends Mapper<LongWritable, Text, PairWritable, DoubleWritable> {
 
     private Logger logger = Logger.getLogger(Map.class);
 
     public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-        DoubleWritable one = new DoubleWritable(1);
+        DoubleWritable one = new DoubleWritable(1.0);
 
-        List<String> words = Arrays.asList(value.toString().split("\\s"));
+        List<String> words = Arrays.asList(value.toString().split("\\s+"));
 
         int size = words.size();
         for (int i = 0; i < size; i++) {
-            String u = words.get(i);
-            for (String v : window(u, words.subList(i, size))) {
-                StringPairWritable p1 = new StringPairWritable(u, v);
+            Text u = new Text(words.get(i));
+            for (String v : window(words.get(i), words.subList(i, size))) {
+                PairWritable p1 = new PairWritable(u, new Text(v));
                 context.write(p1, one);
                 logger.info("(" + p1 + ", " + one + ")");
-                StringPairWritable p2 = new StringPairWritable(u, "*");
+
+                PairWritable p2 = new PairWritable(u, new Text("*"));
                 context.write(p2, one);
                 logger.info("(" + p2 + ", " + one + ")");
             }
@@ -36,7 +37,7 @@ public class Map extends Mapper<LongWritable, Text, StringPairWritable, DoubleWr
 
     List<String> window(String u, List<String> words) {
         List<String> window = new ArrayList<String>();
-        for (int i = 0; i < words.size(); i++) {
+        for (int i = 1; i < words.size(); i++) {
             if (words.get(i).equals(u)) return window;
             else window.add(words.get(i));
         }

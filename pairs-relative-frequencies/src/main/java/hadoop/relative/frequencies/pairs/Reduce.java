@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
-public class Reduce extends Reducer<StringPairWritable, DoubleWritable, StringPairWritable, DoubleWritable> {
+public class Reduce extends Reducer<PairWritable, DoubleWritable, PairWritable, DoubleWritable> {
 
     private Logger logger = Logger.getLogger(Reduce.class);
     private Double sum;
@@ -17,17 +17,17 @@ public class Reduce extends Reducer<StringPairWritable, DoubleWritable, StringPa
         this.sum = 0D;
     }
 
-    public void reduce(StringPairWritable pair, Iterable<DoubleWritable> values, Context context)
+    public void reduce(PairWritable pair, Iterable<DoubleWritable> values, Context context)
             throws IOException, InterruptedException {
-        double s = 0;
+        Double s = 0D;
         for (DoubleWritable val : values) {
             s += val.get();
-            if (val.equals("*")) sum = s;
-            else {
-                Double frequency = s / sum;
-                logger.info("(" + pair + ", " + frequency + ")");
-                context.write(pair, new DoubleWritable(frequency));
-            }
+        }
+        if (pair.getValue().toString().equals("*")) sum = s;
+        else {
+            Double frequency = s / sum;
+            logger.info("(" + pair + ", " + frequency + ")");
+            context.write(pair, new DoubleWritable(frequency));
         }
     }
 }

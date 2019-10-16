@@ -17,7 +17,7 @@ public class Compute {
         Job job = Job.getInstance(conf, "compute");
         job.setJarByClass(Compute.class);
 
-        job.setOutputKeyClass(StringPairWritable.class);
+        job.setOutputKeyClass(PairWritable.class);
         job.setOutputValueClass(DoubleWritable.class);
 
         job.setMapperClass(Map.class);
