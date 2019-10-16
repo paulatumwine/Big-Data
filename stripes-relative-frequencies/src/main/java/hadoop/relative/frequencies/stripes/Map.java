@@ -16,17 +16,18 @@ public class Map extends Mapper<LongWritable, Text, Text, CustomMapWritable> {
     private Logger logger = Logger.getLogger(Map.class);
 
     public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-        List<String> words = Arrays.asList(value.toString().split("\\s"));
+        List<String> words = Arrays.asList(value.toString().split("\\s+"));
 
         int size = words.size();
         for (int i = 0; i < size; i++) {
             String u = words.get(i);
             CustomMapWritable stripe = new CustomMapWritable();
             for (String v : window(u, words.subList(i, size))) {
-                if (stripe.containsKey(v)) {
-                    Double val = Double.parseDouble(stripe.get(v).toString()) + 1D;
-                    stripe.put(new Text(v), new DoubleWritable(val));
-                } else stripe.put(new Text(v), new DoubleWritable(1D));
+                Text kv = new Text(v);
+                if (stripe.containsKey(kv)) {
+                    Double val = Double.parseDouble(stripe.remove(kv).toString()) + 1;
+                    stripe.put(kv, new DoubleWritable(val));
+                } else stripe.put(kv, new DoubleWritable(1D));
             }
             Text k = new Text(u);
             context.write(k, stripe);
@@ -36,7 +37,7 @@ public class Map extends Mapper<LongWritable, Text, Text, CustomMapWritable> {
 
     List<String> window(String u, List<String> words) {
         List<String> window = new ArrayList<String>();
-        for (int i = 0; i < words.size(); i++) {
+        for (int i = 1; i < words.size(); i++) {
             if (words.get(i).equals(u)) return window;
             else window.add(words.get(i));
         }

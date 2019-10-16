@@ -12,9 +12,11 @@ public class CustomMapWritable extends MapWritable {
         StringBuilder result = new StringBuilder();
         Set<Writable> keySet = this.keySet();
 
-        result.append("[");
+        result.append("["); int cnt = 1;
         for (Object key : keySet) {
             result.append(key.toString() + ": " + this.get(key));
+            if (cnt < keySet.size()) result.append(", ");
+            cnt++;
         }
         result.append("]");
         return result.toString();
