@@ -15,7 +15,7 @@ public class InMapperWordCount {
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
 
-        Job job = new Job(conf, "wordcount");
+        Job job = Job.getInstance(conf, "wordcount");
         job.setJarByClass(InMapperWordCount.class);
 
         job.setOutputKeyClass(Text.class);
@@ -30,8 +30,8 @@ public class InMapperWordCount {
         FileInputFormat.addInputPath(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
-        FileInputFormat.setMaxInputSplitSize(job, 80);
-        job.setNumReduceTasks(3);
+        // FileInputFormat.setMaxInputSplitSize(job, 80);
+        // job.setNumReduceTasks(3);
 
         job.waitForCompletion(true);
     }
