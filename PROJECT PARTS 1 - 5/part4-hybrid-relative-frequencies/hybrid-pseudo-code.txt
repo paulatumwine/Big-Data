@@ -1,0 +1,22 @@
+class Mapper
+    method Map(docid a; doc d)
+        for all term u in record r do
+            for all term v in Window(u) do
+    Emit((u, v), 1) 
+    Emit((u, *), 1)
+
+class Reducer
+    method initialize()
+        H=new AssociativeArray
+        prev=null
+    method Reduce(Pair (u, v), Integer [c1, c2, …])
+        if (prev != null && u != prev)
+            Total=total(H)
+            Emit(prev, H/Total)
+            H=new AssociativeArray
+        Sum=sum(c1, c2...cn)
+        H{u}=Sum
+        prev=u
+    method close()
+        Total=total(H)
+        Emit(prev, H/Total)
