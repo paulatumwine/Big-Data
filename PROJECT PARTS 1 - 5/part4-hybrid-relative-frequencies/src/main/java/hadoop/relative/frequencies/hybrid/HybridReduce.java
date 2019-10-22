@@ -17,7 +17,7 @@ public class HybridReduce extends Reducer<PairWritable, IntWritable, Text, Custo
 
     @Override
     protected void setup(Context context) {
-        this.fStripe = new HashMap<>();
+        this.fStripe = new HashMap<String, Integer>();
         this.prev = null;
     }
 

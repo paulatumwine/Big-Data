@@ -30,7 +30,7 @@ public class HybridMap extends Mapper<LongWritable, Text, PairWritable, IntWrita
     }
 
     private List<String> window(String u, List<String> words) {
-        List<String> window = new ArrayList<>();
+        List<String> window = new ArrayList<String>();
         for (int i = 1; i < words.size(); i++) {
             if (words.get(i).equals(u)) return window;
             else window.add(words.get(i));
