@@ -32,14 +32,15 @@ object Bootstrapping$ extends App {
             .toDF
 
         // output the average and variance of the overall population
-        val popnAvg = population.groupBy(category).agg(avg(numeric).as("average"))
-        val popnVar = population.groupBy(category).agg(variance(numeric).as("variance"))
+        val popnMetrics = population
+            .groupBy(category)
+            .agg(avg(numeric).as("average"), variance(numeric).as("variance"))
 
         // take initial sample from whole population with no replacement
         val sample = population.sample(false, .25)
 
         // compute average and variance metrics for sample taken
-        val average = sample.groupBy(category).agg(avg(numeric).as("average")).toDF
+        val average = sample.groupBy(category).agg(avg(numeric).as("average"), variance(numeric).as("variance")).toDF
         val variace = sample.groupBy(category).agg(variance(numeric).as("variance")).toDF
 
         // add average and variance of initial sample to the collections of the corresponding metrics
@@ -49,8 +50,7 @@ object Bootstrapping$ extends App {
         // resample with replacement, compute average & variance metrics for each sample, and append them to corresponding collections
         for (i <- 1 until (samples - 1)) {
             val resample = sample.sample(true, 1)
-            avgColl ::= resample.groupBy(category).agg(avg(numeric)).toDF
-            varColl ::= resample.groupBy(category).agg(variance(numeric)).toDF
+            avgColl ::= resample.groupBy(category).agg(avg(numeric), variance(numeric)).toDF
         }
 
         // reduce respective collections to get average & variance across n samples
@@ -61,18 +61,16 @@ object Bootstrapping$ extends App {
             .map(x => x._1 -> x._2 / samples)
             .toDF
 
-        val flatVar = varColl
-            .flatMap(df => df.map(row => row.getString(0) -> row.getDouble(1)).collect().toList)
+        val flatVar = avgColl
+            .flatMap(df => df.map(row => row.getString(0) -> row.getDouble(2)).collect().toList)
         val sampVar = sc.parallelize(flatVar)
             .reduceByKey(_ + _)
             .map(x => x._1 -> x._2 / samples)
             .toDF()
 
         // Output away...
-        popnAvg.show()
+        popnMetrics.show()
         sampAvg.show()
-
-        popnVar.show()
         sampVar.show()
     }
 }
